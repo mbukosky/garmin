@@ -23,6 +23,7 @@ import re
 import shutil
 import sys
 import urllib
+import zipfile
 
 BASE_URL = "http://connect.garmin.com/en-US/signin"
 GAUTH = "https://connect.garmin.com/gauth/hostname"
@@ -33,6 +34,7 @@ ACTIVITIES = "http://connect.garmin.com/proxy/activity-search-service-1.2/json/a
 
 TCX = "https://connect.garmin.com/modern/proxy/download-service/export/tcx/activity/%s"
 GPX = "https://connect.garmin.com/modern/proxy/download-service/export/gpx/activity/%s"
+ZIP = "https://connect.garmin.com/modern/proxy/download-service/files/activity/%s"
 
 def login(agent, username, password):
     global BASE_URL, GAUTH, REDIRECT, SSO, CSS
@@ -122,8 +124,8 @@ def activities(agent, outdir, increment = 100):
 
             activityId = item['activity']['activityId']
             activityDate = item['activity']['activitySummary']['BeginTimestamp']['value'][:10]
-            url = TCX % activityId
-            file_name = '{}_{}.txt'.format(activityDate, activityId)
+            url = ZIP % activityId
+            file_name = '{}_{}.zip'.format(activityDate, activityId)
             if file_exists_in_folder(file_name, output):
                 print('{} already exists in {}. Skipping.'.format(file_name, output))
                 continue
@@ -133,7 +135,15 @@ def activities(agent, outdir, increment = 100):
             f = open(file_path, "w")
             f.write(datafile)
             f.close()
-            shutil.copy(file_path, os.path.join(os.path.dirname(os.path.dirname(file_path)), file_name))
+
+            # Unzip into the results directory
+            results_dir = os.path.dirname(os.path.dirname(file_path))
+            zip_ref = zipfile.ZipFile(file_path, 'r')
+            zip_ref.extractall(results_dir)
+            zip_ref.close()
+
+            # We don't need to copy the zip into the results directory
+            # shutil.copy(file_path, os.path.join(results_dir, file_name))
 
         if (currentIndex + increment) > totalActivities:
             # All done!
