@@ -14,12 +14,17 @@ To download all your Garmin workouts in TCX format (basically XML), perform the 
 
  1. Download the `download.py` file, either by checking out the repository, downloading the ZIP archive, or by literally copy/pasting the text into a file.
  2. Make sure you have the `mechanize` Python package installed; instructions to do so are below (though this will hopefully be replaced very soon).
+ 
+ ```bash
+ pip install mechanize
+ ```
+
  3. Run the command:
 
  ```
  python download.py -u your_garmin_username
  ```
- 
+
  When prompted for your password, type it in (it won't be saved), and within a few seconds you should see your activities being downloaded!
 
  Alternatively, you can also set up a CSV file with only 1 line that looks like this:
